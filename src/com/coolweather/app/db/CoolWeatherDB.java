@@ -20,7 +20,7 @@ import com.coolweather.app.model.Province;
  */
 public class CoolWeatherDB {
 	// 数据库名
-	public static final String DB_NAME = "cool_weather";
+	public static final String DB_NAME = "cool_weather.db";
 	// 数据库版本
 	public static final int VERSION = 1;
 	private static CoolWeatherDB coolweatherDB;
@@ -53,7 +53,7 @@ public class CoolWeatherDB {
 		// 先判断province是否为空
 		if (province != null) {
 			ContentValues values = new ContentValues();
-			values.put("provice_name", province.getProvinceName());
+			values.put("province_name", province.getProvinceName());
 			values.put("province_code", province.getProvinceCode());
 			// 添加到数据库
 			db.insert("Province", null, values);
