@@ -73,7 +73,7 @@ public class CoolWeatherDB {
 			do {
 				// 创建一个省的实例存放信息
 				Province province = new Province();
-				province.setId(cursor.getColumnIndex("id"));
+				province.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				province.setProvinceName(cursor.getString(cursor
 						.getColumnIndex("province_name")));
 				province.setProvinceCode(cursor.getString(cursor
@@ -109,12 +109,12 @@ public class CoolWeatherDB {
 	 */
 	public List<City> loadCities(int provinceId) {
 		List<City> list = new ArrayList<City>();
-		Cursor cursor = db.query("City", null, "province_Id=?",
+		Cursor cursor = db.query("City", null, "province_id=?",
 				new String[] { String.valueOf(provinceId) }, null, null, null);
 		if (cursor.moveToFirst()) {
 			do {
 				City city = new City();
-				city.setId(cursor.getColumnIndex("id"));
+				city.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				city.setCityName(cursor.getString(cursor
 						.getColumnIndex("city_name")));
 				city.setCityCode(cursor.getString(cursor
@@ -137,7 +137,7 @@ public class CoolWeatherDB {
 			ContentValues values = new ContentValues();
 			values.put("county_name", county.getCountyName());
 			values.put("county_code", county.getCountyCode());
-			values.put("city_Id", county.getCityId());
+			values.put("city_id", county.getCityId());
 			// 添加到数据库
 			db.insert("County", null, values);
 		}
@@ -154,15 +154,16 @@ public class CoolWeatherDB {
 		if (cursor.moveToFirst()) {
 			do {
 				County county = new County();
-				county.setId(cursor.getColumnIndex("id"));
+				county.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				county.setCountyName(cursor.getString(cursor
 						.getColumnIndex("county_name")));
 				county.setCountyCode(cursor.getString(cursor
 						.getColumnIndex("county_code")));
 				county.setCityId(cityId);
+				list.add(county);
 			} while (cursor.moveToNext());
 		}
-		if(cursor!=null){
+		if (cursor != null) {
 			cursor.close();
 		}
 		return list;

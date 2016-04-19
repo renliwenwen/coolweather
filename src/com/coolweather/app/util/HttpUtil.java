@@ -37,7 +37,7 @@ public class HttpUtil {
 					// 获取到输入流
 					InputStream in = conn.getInputStream();
 					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(in));
+							new InputStreamReader(in,"utf-8"));
 					StringBuilder response = new StringBuilder();
 					String line;
 					while((line = reader.readLine())!=null){

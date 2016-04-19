@@ -5,7 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -22,8 +25,8 @@ import com.coolweather.app.model.City;
 import com.coolweather.app.model.County;
 import com.coolweather.app.model.Province;
 import com.coolweather.app.util.HttpUtil;
-import com.coolweather.app.util.Utility;
 import com.coolweather.app.util.HttpUtil.HttpCallbackListener;
+import com.coolweather.app.util.Utility;
 
 public class ChooseAreaActivity extends Activity {
 	// 常量记录选择的类别
@@ -58,6 +61,14 @@ public class ChooseAreaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if (sp.getBoolean("city_selected", false)) {
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		// 去掉标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 加载布局
@@ -65,8 +76,8 @@ public class ChooseAreaActivity extends Activity {
 		// 获取listview控件
 		listView = (ListView) findViewById(R.id.list_view);
 		title = (TextView) findViewById(R.id.title_text);
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-				dataList);
+		adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		// 初始化数据库处理类
 		coolWeatherDB = CoolWeatherDB.getInstance(this);
@@ -86,6 +97,14 @@ public class ChooseAreaActivity extends Activity {
 					selectedCity = cityList.get(position);// 当前选中的城市
 					// 查询该城市下的所有县
 					querryCounties();
+				} else if (currentLevel == LEVEL_COUNTY) {
+					String countyCode = countyList.get(position)
+							.getCountyCode();
+					Intent intent = new Intent(ChooseAreaActivity.this,
+							WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
 				}
 			}
 		});
@@ -151,14 +170,12 @@ public class ChooseAreaActivity extends Activity {
 			dataList.clear();
 			for (County county : countyList) {
 				dataList.add(county.getCountyName());
-				System.out.println(county.getCountyName());
 			}
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
 			title.setText(selectedCity.getCityName());
 			currentLevel = LEVEL_COUNTY;
 		} else {
-			System.out.println(selectedCity.getCityCode());
 			querryFormServer(selectedCity.getCityCode(), "county");
 		}
 	}
@@ -192,7 +209,6 @@ public class ChooseAreaActivity extends Activity {
 					result = Utility.handleCitiesResponse(coolWeatherDB,
 							response, selectedProvince.getId());
 				} else if ("county".equals(type)) {
-					System.out.println(selectedCity.getCityCode());
 					result = Utility.handleCountiesResponse(coolWeatherDB,
 							response, selectedCity.getId());
 				}
@@ -234,7 +250,7 @@ public class ChooseAreaActivity extends Activity {
 
 	private void showProgressDialog() {
 		// TODO Auto-generated method stub
-		if(progressDialog == null){
+		if (progressDialog == null) {
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setMessage("正在加载中....");
 			progressDialog.setCanceledOnTouchOutside(false);
@@ -244,19 +260,21 @@ public class ChooseAreaActivity extends Activity {
 
 	private void closeProgressDialog() {
 		// TODO Auto-generated method stub
-		if(progressDialog!=null){
+		if (progressDialog != null) {
 			progressDialog.dismiss();
 		}
 	}
+
 	/**
 	 * 捕获back键判断选择的级别
 	 */
-	public void onBackPressed(){
-		if(currentLevel == LEVEL_COUNTY){
+	@Override
+	public void onBackPressed() {
+		if (currentLevel == LEVEL_COUNTY) {
 			querryCities();
-		}else if(currentLevel == LEVEL_CITY){
+		} else if (currentLevel == LEVEL_CITY) {
 			querryProvinces();
-		}else{
+		} else {
 			finish();
 		}
 	}
